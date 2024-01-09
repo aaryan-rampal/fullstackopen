@@ -1,0 +1,31 @@
+const obj1 = {
+	name: "Aaryan Rampal",
+	age: 19,
+	education: "Bachelors"
+}
+
+const obj2 = {
+  name: 'Full Stack web application development',
+  level: 'intermediate studies',
+  size: 5,
+}
+
+const obj3 = {
+  name: {
+    first: 'Dan',
+    last: 'Abramov',
+  },
+  grades: [2, 3, 5, 3],
+  department: 'Stanford University',
+}
+
+console.log(obj1)
+console.log(obj2)
+console.log(obj3)
+
+console.log(obj1.name)
+const fieldName = 'age'
+console.log(obj1[fieldName])
+obj1.address = 'Sidney'
+obj1['education'] = 'UBC'
+console.log(obj1)
