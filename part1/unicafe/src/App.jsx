@@ -15,17 +15,33 @@ const Header = ({good, neutral, bad}) => {
 
 const Stat = ({name, amt}) => {
   return (
-      <p>{name} {amt}</p>
+      <p>{name}: {amt}</p>
   )
 }
 
+
 const Footer = ({good, neutral, bad}) => {
+  const computeAverage = () => {
+    // this only works since good, neutral, and bad are positive values
+    if (good + neutral + bad == 0) return 'no reviews yet'
+    let net = good - bad 
+    return net / (good+bad+neutral)
+  }
+
+  const computePositive = () => {
+    if (good + neutral + bad == 0) return 'no reviews yet'
+    return 100 * good / (good+neutral+bad) + '%'
+  }
+
   return (
     <div>
       <h2>Statistics</h2>
       <Stat name='good' amt={good}></Stat>
       <Stat name='neutral' amt={neutral}></Stat>
       <Stat name='bad' amt={bad}></Stat>
+      <Stat name='all' amt={good + neutral + bad}></Stat>
+      <Stat name='average' amt={computeAverage()}></Stat>
+      <Stat name='positive' amt={computePositive()}></Stat>
     </div>
   )
 }
