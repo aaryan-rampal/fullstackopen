@@ -1,24 +1,48 @@
-import { useState } from 'react'
+import noteService from './services/notes'
+import { useState, useEffect } from 'react'
+import axios from 'axios';
 import Note from "./components/Note";
 
-const App = (props) => {
+const App = () => {
 
-  const [notes, setNotes] = useState(props.notes)
+  const [notes, setNotes] = useState([])
   const [newNote, setNewNote] = useState('a new note...')
   const [showAll, setShowAll] = useState(true)
+
+  const hook = () => {
+    console.log('effect')
+    // axios
+    //   .get('http://localhost:3001/notes')
+    //   .then(response => {
+    //     console.log('promise fulfilled')
+    //     setNotes(response.data)
+    //   })
+    noteService.getAll()
+      .then(initialNotes => {
+        console.log('promise fulfilled')
+        setNotes(initialNotes)
+      })
+  }
+
+  useEffect(hook, [])
+  console.log('render', notes.length, 'notes')
 
   const addNote = (event) => {
     event.preventDefault()
     console.log('button clicked', event.target)
     const noteObject = {
       content: newNote,
-      important: Math.random() < 0.5,
-      id: notes.length + 1
+      important: Math.random() < 0.5
     }
 
-    setNotes(notes.concat(noteObject))
-    setNewNote('')
+    noteService.create(noteObject)
+      .then(newNote => {
+        console.log(newNote)
+        setNotes(notes.concat(newNote))
+        setNewNote('')
+      })
   }
+
 
   const handleNoteChange = (event) => {
     console.log(event.target.value)
@@ -31,7 +55,22 @@ const App = (props) => {
 
   const notesToShow = showAll ? notes : notes.filter(note => note.important)
 
-  console.log(notes.map(note => note.content));
+  const toggleImportanceOf = (id) => {
+    console.log('importance of ' + id + ' needs to be toggled')
+    const url = `http://localhost:3001/notes/${id}`
+    const note = notes.find(n => n.id == id)
+    const changedNote = {...note, important: !note.important}
+
+    noteService.update(note.id, changedNote)
+    .then(updatedNote => {
+      setNotes(notes.map(n => n.id != id ? n : updatedNote))
+    })
+    .catch(error => {
+      alert(`the note ${note.content} does not exist`)
+      setNotes(notes.filter(n => n.id != id))
+    })
+
+  }
 
   return (
     <div>
@@ -43,7 +82,7 @@ const App = (props) => {
       </div>
 
       <ul>
-        {notesToShow.map(note => <Note key={note.id} note={note}></Note>)}
+        {notesToShow.map(note => <Note key={note.id} note={note} toggleImportance={() => toggleImportanceOf(note.id)}></Note>)}
       </ul>
 
       <form onSubmit={addNote}>

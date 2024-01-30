@@ -1,48 +1,30 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import personService from './services/notes'
+import PersonForm from './components/PersonForm'
+import Filter from './components/Filter'
+import Person from './components/Person'
 
-const Persons = ({filteredPersons}) => {
-  return (
-    <div>
-      {filteredPersons.map(person => <p key={person.name}>{person.name} {person.number}</p>)}
-    </div>
-  )
-}
-const Filter = ({ filteredValue, handleFilter }) => {
-  return (
-    <form>
-      <div>
-        search name<input value={filteredValue} onChange={handleFilter} />
-      </div>
-    </form>
-  )
-}
-
-const PersonForm = ({ newName, handleNameChange, newNumber, handleNumberChange, addEntry }) => {
-  return (
-    <form>
-      <div>
-        name: <input value={newName} onChange={handleNameChange} />
-      </div>
-      <div>
-        number: <input value={newNumber} onChange={handleNumberChange} />
-      </div>
-      <div>
-        <button onClick={addEntry} type="submit">add</button>
-      </div>
-    </form>
-  )
-}
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ])
+
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filteredValue, setFilteredValue] = useState('')
+
+  const filteredPersons = persons.filter(person => person.name.toLowerCase().includes(filteredValue.toLowerCase()))
+
+  const hook = () => {
+    console.log('in hook')
+    personService.getAll()
+      .then(persons => {
+        console.log('data received')
+        setPersons(persons)
+      })
+  }
+
+  useEffect(hook, [])
+  console.log('rendered persons')
 
   const addEntry = (event) => {
     event.preventDefault()
@@ -53,11 +35,26 @@ const App = () => {
     }
 
     if (persons.some(person => person.name === newName)) {
-      alert(`${newName} is already added to phonebook`)
+      const person = persons.find(p => p.name == newName)
+      if (!window.confirm(`${person.name} is already in the phonebook. Would you like to update their number?`))
+        return
+
+      console.log('want to update number');
+      personService.update(person.id, newPerson).then(person => {
+        setPersons(persons.map(p => p.id != person.id ? p : person))
+        setNewNumber('')
+        setNewName('')
+
+      })
+
     } else {
-      setPersons(persons.concat(newPerson))
-      setNewNumber('')
-      setNewName('')
+      personService.create(newPerson)
+        .then(person => {
+          console.log('hahaha', person)
+          setPersons(persons.concat(person))
+          setNewNumber('')
+          setNewName('')
+        })
     }
   }
 
@@ -74,10 +71,23 @@ const App = () => {
   const handleFilter = (event) => {
     console.log(event.target.value)
     setFilteredValue(event.target.value)
-    console.log(filteredPersons)
   }
 
-  const filteredPersons = persons.filter(person => person.name.toLowerCase().includes(filteredValue.toLowerCase()))
+  const deletePersonID = (person) => {
+    // Implementation to delete a person with the given id
+    console.log(`Deleting person with ID: ${person.id}`);
+    // Perform actual deletion logic here
+    if (!window.confirm(`Do you want to delete ${person.name}?`)) {
+      return
+    }
+
+    console.log('didn\'t return')
+    personService.del(person.id)
+      .then(removedPerson => {
+        console.log(removedPerson)
+        setPersons(persons.filter(person => person.id != removedPerson.id))
+      })
+  };
 
   return (
     <div>
@@ -86,7 +96,17 @@ const App = () => {
       <PersonForm newName={newName} newNumber={newNumber} handleNameChange={handleNameChange}
         handleNumberChange={handleNumberChange} addEntry={addEntry}></PersonForm>
       <h2>Numbers</h2>
-      <Persons filteredPersons={filteredPersons}></Persons>
+      {filteredPersons.map(person => {
+        console.log('going to render ', person)
+        return (
+          <Person
+            key={person.id}
+            person={person}
+            deletePerson={() => deletePersonID(person)}>
+          </Person>
+        )
+      })
+      }
     </div>
   )
 }
