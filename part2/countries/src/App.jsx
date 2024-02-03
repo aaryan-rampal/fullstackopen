@@ -1,7 +1,10 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import service from './services/notes'
 import SearchForm from './components/SearchForm'
 import Results from './components/Results'
+import { getKey } from './components/Results'
+
+//const api_key = import.meta.env.OPEN_WEATHER_KEY
 
 const App = () => {
 
@@ -16,7 +19,21 @@ const App = () => {
       setCountries(data)
     })
   }
+
   useEffect(hook, [])
+
+  const showCountry = (selected) => {
+    // const countryToShow = filteredCountries.filter(country => {
+    //   console.log('comparing ', getKey(country), ' and ', selected, ': ', getKey(country) === selected)
+    //   getKey(country) === selected
+    // })
+    const countryToShow = filteredCountries.filter(country => getKey(country) === selected)
+    // console.log('this is what show does', countryToShow)
+    setSearchTerm(countryToShow[0].name.common)
+    setFilteredCountries(countryToShow)
+	  console.log(process.env.REACT_APP_OPEN_WEATHER_KEY)
+  }
+
 
   const filterCountries = (props) => {
     // console.log('something should filter now');
@@ -39,7 +56,10 @@ const App = () => {
       <SearchForm filteredCountry={searchTerm}
         handleFilter={filterCountries}
       />
-      <Results length={countries.length} filteredCountries={filteredCountries}></Results>
+      <Results length={countries.length}
+        filteredCountries={filteredCountries}
+        showCountry={showCountry}
+      ></Results>
     </div>
   )
 }
