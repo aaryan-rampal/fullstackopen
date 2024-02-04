@@ -1,4 +1,5 @@
-import ShowButton from "./ShowButton"
+import countryService from '../services/notes'
+import { useState, useEffect } from 'react'
 
 export const getKey = (country) => {
   return `${country.cioc}-${country.name.common}`
@@ -6,12 +7,6 @@ export const getKey = (country) => {
 
 // const Results = ({ length, filteredCountries }) => {
 const Results = ({ length, filteredCountries, showCountry }) => {
-
-  // const showCountry = (id) => {
-  //   const countryToShow = filteredCountries.find(country => getKey(country) === id)
-  //   console.log(countryToShow)
-  // }
-
 
   if (length == 0) {
     return (
@@ -45,26 +40,47 @@ const Results = ({ length, filteredCountries, showCountry }) => {
 
   if (filteredCountries.length == 1) {
     // console.log(filteredCountries)
+    const [temp, setTemp] = useState(null)
+    const [image, setImage] = useState(null)
+    const [wind, setWind] = useState(null)
+
     const country = filteredCountries[0]
     const name = country.name.common
     const capitals = country.capital
     const displayString = `capital${capitals.length > 1 ? 's' : ''}: ${capitals.join(', ')}`;
-    // console.log(country.languages)
-    // console.log(typeof country.languages)
     const languagesArr = Object.entries(country.languages)
-    // console.log(languagesArr)
-    // console.log(country.car)
+    const [lat, lng] = country.capitalInfo.latlng
+    countryService.getWeather(lat, lng).then(data => data.main.temp)
+
+    useEffect(() => {
+      countryService.getWeather(lat, lng)
+        .then(data => {
+          console.log(data)
+          setTemp(data.main.temp - 273.15)
+          const id = data.weather[0].icon
+          setImage(`https://openweathermap.org/img/wn/${id}@2x.png`)
+          setWind(data.wind.speed)
+        })
+    }, [lat, lng])
 
     return (
       <div>
-        <h1>{name}</h1>
-        <p>{displayString}</p>
-        <p>area: {country.area}</p>
-        <h4>languages:</h4>
-        <ul>
-          {languagesArr.map(([lang, name]) => <li key={lang}>{name}</li>)}
-        </ul>
-        <img src={country.flags.png} alt={country.flags.alt}></img>
+        <div>
+          <h1>{name}</h1>
+          <p>{displayString}</p>
+          <p>area: {country.area}</p>
+          <h4>languages:</h4>
+          <ul>
+            {languagesArr.map(([lang, name]) => <li key={lang}>{name}</li>)}
+          </ul>
+          <img src={country.flags.png} alt={country.flags.alt}></img>
+        </div>
+        <div>
+          <h2>Weather in {capitals[0]}</h2>
+          <p>temperature: {temp == null ? 'Loading...' : temp.toFixed(2)} Celsius</p>
+          <img src={image}></img>
+          <p>wind: {wind == null ? 'Loading...' : wind}</p>
+        </div>
       </div>
     )
   }

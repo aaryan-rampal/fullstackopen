@@ -4,7 +4,6 @@ import SearchForm from './components/SearchForm'
 import Results from './components/Results'
 import { getKey } from './components/Results'
 
-//const api_key = import.meta.env.OPEN_WEATHER_KEY
 
 const App = () => {
 
@@ -31,7 +30,6 @@ const App = () => {
     // console.log('this is what show does', countryToShow)
     setSearchTerm(countryToShow[0].name.common)
     setFilteredCountries(countryToShow)
-	  console.log(process.env.REACT_APP_OPEN_WEATHER_KEY)
   }
 
 
