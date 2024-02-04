@@ -5,7 +5,6 @@ export const getKey = (country) => {
   return `${country.cioc}-${country.name.common}`
 }
 
-// const Results = ({ length, filteredCountries }) => {
 const Results = ({ length, filteredCountries, showCountry }) => {
 
   if (length == 0) {
@@ -28,10 +27,9 @@ const Results = ({ length, filteredCountries, showCountry }) => {
     return (
       <div>
         {filteredCountries.map(country =>
-          <p //key={`${country.cioc}-${country.name.common}`}>
+          <p
             key={getKey(country)}>
             {country.name.common}
-            {/* <ShowButton onAction={() => showCountry(getKey(country))} /> */}
             <button onClick={() => showCountry(getKey(country))}>show</button>
           </p>)}
       </div>
@@ -55,11 +53,12 @@ const Results = ({ length, filteredCountries, showCountry }) => {
     useEffect(() => {
       countryService.getWeather(lat, lng)
         .then(data => {
-          console.log(data)
-          setTemp(data.main.temp - 273.15)
+          // console.log(data)
           const id = data.weather[0].icon
+
+          setTemp(data.main.temp - 273.15)
           setImage(`https://openweathermap.org/img/wn/${id}@2x.png`)
-          setWind(data.wind.speed)
+          setWind(data.wind.speed * 3.6)
         })
     }, [lat, lng])
 
@@ -77,9 +76,9 @@ const Results = ({ length, filteredCountries, showCountry }) => {
         </div>
         <div>
           <h2>Weather in {capitals[0]}</h2>
-          <p>temperature: {temp == null ? 'Loading...' : temp.toFixed(2)} Celsius</p>
+          <p>temperature: {temp == null ? 'Loading...' : temp.toFixed(0)} Celsius</p>
           <img src={image}></img>
-          <p>wind: {wind == null ? 'Loading...' : wind}</p>
+          <p>wind: {wind == null ? 'Loading...' : wind.toFixed(0)} km/h</p>
         </div>
       </div>
     )

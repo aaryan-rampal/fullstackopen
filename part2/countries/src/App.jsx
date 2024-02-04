@@ -22,10 +22,6 @@ const App = () => {
   useEffect(hook, [])
 
   const showCountry = (selected) => {
-    // const countryToShow = filteredCountries.filter(country => {
-    //   console.log('comparing ', getKey(country), ' and ', selected, ': ', getKey(country) === selected)
-    //   getKey(country) === selected
-    // })
     const countryToShow = filteredCountries.filter(country => getKey(country) === selected)
     // console.log('this is what show does', countryToShow)
     setSearchTerm(countryToShow[0].name.common)
