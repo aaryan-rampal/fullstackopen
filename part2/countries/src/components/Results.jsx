@@ -36,7 +36,7 @@ const Results = ({ length, filteredCountries, showCountry }) => {
     )
   }
 
-  if (filteredCountries.length == 1) {
+  if (filteredCountries.length === 1) {
     // console.log(filteredCountries)
     const [temp, setTemp] = useState(null)
     const [image, setImage] = useState(null)
