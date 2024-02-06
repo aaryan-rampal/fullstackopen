@@ -35,9 +35,9 @@ const requestLogger = (req, res, next) => {
 app.use(requestLogger)
 
 
-// app.get('/', (request, response) => {
-// 	response.send('<h1>Hello World</h1><a href=\'api/notes\'>notes</a>')
-// })
+app.get('/', (request, response) => {
+	response.send('<h1>Hello World</h1><a href=\'api/notes\'>notes</a>')
+})
 
 app.get('/api/notes', (request, response) => {
 	response.json(notes)
