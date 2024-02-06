@@ -31,17 +31,13 @@ const requestLogger = (req, res, next) => {
 	next()
 }
 
-const unknownEndpoint = (request, response) => {
-	response.status(404).send({ error: 'unknown endpoint' })
-  }
   
 app.use(requestLogger)
-app.use(unknownEndpoint)
 
 
-app.get('/', (request, response) => {
-	response.send('<h1>Hello World</h1><a href=\'api/notes\'>notes</a>')
-})
+// app.get('/', (request, response) => {
+// 	response.send('<h1>Hello World</h1><a href=\'api/notes\'>notes</a>')
+// })
 
 app.get('/api/notes', (request, response) => {
 	response.json(notes)
@@ -63,6 +59,14 @@ app.delete('/api/notes/:id', (req, res) => {
 	notes = notes.filter(note => note.id != id)
 
 	res.status(204).end()
+})
+
+app.put('/api/notes/:id', (req, res) => {
+	newNote = req.body
+	console.log(newNote)
+	notes = notes.map(note => note.id === req.body.id ? newNote : note)
+	console.log(notes)
+	res.json(newNote)
 })
 
 app.post('/api/notes/', (req, res) => {
@@ -87,7 +91,13 @@ app.post('/api/notes/', (req, res) => {
 	res.json(note)
 })
 
-const PORT = 3001
+const unknownEndpoint = (request, response) => {
+	response.status(404).send({ error: 'unknown endpoint' })
+}
+app.use(unknownEndpoint)
+
+const PORT = process.env.PORT || 3001
+
 app.listen(PORT, () => {
 	console.log(`Server listening on port ${PORT}`)
 })
